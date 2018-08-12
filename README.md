@@ -328,7 +328,7 @@ If you change the object, array, function type target in it's callback function 
     }
     var objectListener = pListener.proxyListen(object, 'target')
     var objectSubscription = objectListener.subscribe(function (x) {
-   	  // use target's glob function to return primitive target   
+      // use target's glob function to return primitive target   
       object.target.glob().word = 'change'
       // use passing object's glob property to access primitive target
       x.glob.word = 'second change' 
@@ -474,17 +474,17 @@ If you change the object, array, function type target in it's callback function 
     object.targetZero.func()
     object.targetZero.array.reverse()
     object.targetZero.nested = { content: 'nested' } 
-	// new property can't be added to target because validator return false
+    // new property can't be added to target because validator return false
     object.targetMax.nested = { content: 'nested' } 
     console.log(object.targetZero.nested);  // undefined
-   	// new property can be added to target because validator return true
-	object.targetZero.nested = { word: 'nested' } 
-	// callback function can be triggered because taget's listen level is max
+    // new property can be added to target because validator return true
+    object.targetZero.nested = { word: 'nested' } 
+    // callback function can be triggered because taget's listen level is max
     object.targetMax.nested.content = 'new'; 
-	// callback function can't be triggered because taget's listen level is 0
+    // callback function can't be triggered because taget's listen level is 0
     object.targetZero.nested.word = 'new';  
     object.targetMultiple.targetOne.word = 'new';
-	//execute the same callback function as targetOne
+    //execute the same callback function as targetOne
     object.targetMultiple.targetTwo.word = 'new'; 
     /* console output:
     * this is targetZero
