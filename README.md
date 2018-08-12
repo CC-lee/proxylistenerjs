@@ -16,9 +16,9 @@ By using [proxy-polyfill](https://github.com/GoogleChrome/proxy-polyfill), it ca
 
 [Usage](#usage)
 
-​      [Basic](#basic)
+[Basic](#basic)
 
-​     [Advanced](#advanced)
+[Advanced](#advanced)
 
  [Examples](#examples)
 
