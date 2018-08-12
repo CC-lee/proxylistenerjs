@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>composite pattern2-example</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="proxylistener.min.js">
+  </script>
+  <script>
+    // dynamic marcoTree
+    var pListener = new ProxyListener()
+    class Node {
+      constructor(name, type) {
+        if (type !== 'main') {
+          this.node = name
+          this.children = {}
+        }
+      }
+      main(node) {
+        this[node['node']] = node
+      }
+      add(node) {
+        this.children[node['node']] = node
+      }
+      execute(path) {
+        console.log(`command execution from node path: ${path}`);
+      }
+    }
+    function loopAll(macroTree) {
+      for (var key in macroTree) {
+        macroTree[key]['node'] = key
+        if (macroTree[key]['children']) {
+          loopAll(macroTree[key]['children'])
+        }
+      }
+    }
+    var object = { macroTree: new Node(null, 'main') }
+    var command1 = new Node('command1')
+    var command2 = new Node('command2')
+    var command3 = new Node('command3')
+    command1.add(new Node('command1.1'))
+    command1.add(new Node('command1.2'))
+    object.macroTree.main(command1)
+    object.macroTree.main(command2)
+    object.macroTree.main(command3)
+    var macrotreeListerner = pListener.proxyListen(object, 'macroTree', {
+      validator: function (x) {
+        if (x.val.node){
+          // when adding new node after creating a listener
+          x.val.added = 'new node' 
+        }
+      },
+      deepListenLv: "max"
+    })
+    macrotreeListerner.subscribe(x => {
+      // execute specific marco tree nodes's commands
+      if (x.locatePath.search('command1') > -1 && x.newValue.execute) { 
+        x.newValue.execute(x.locatePath)
+      }
+      if (!x.newValue.execute) {
+        // output an inform when adding new node after creating a listener
+        console.log('new node is added'); 
+      }
+    })
+    loopAll(object.macroTree)
+    // add new node after creating a listener
+    object.macroTree.command1.add(new Node('command1.3')) 
+  </script>
+</body>
+
+</html>

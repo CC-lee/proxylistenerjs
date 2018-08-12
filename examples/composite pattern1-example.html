@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>composite pattern1-example</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="proxylistener.min.js">
+  </script>
+  <script>
+    // static marcoTree
+    var pListener = new ProxyListener()
+    var object = {
+      macroTree: {
+        command1: {
+          node: 'command1',
+          children: {
+            'command1.1': {
+              node: 'command1.1'
+            },
+            'command1.2': {
+              node: 'command1.2'
+            }
+          }
+        },
+        command2: {
+          node: 'command2'
+        },
+        command3: {
+          node: 'command3'
+        }
+      }
+    }
+    class Create {
+      constructor(para) {
+        this.para = para
+      }
+      execute() {
+        console.log(`command execution from node path: ${this.para}`);
+      }
+    }
+    var funcObj = {}
+    function loopAll(macroTree) {
+      for (var key in macroTree) {
+        macroTree[key]['node'] = key
+        if (macroTree[key]['children']) {
+          loopAll(macroTree[key]['children'])
+        }
+      }
+    }
+    var macrotreeListerner = pListener.proxyListen(object, 'macroTree', { deepListenLv: "max" })
+    macrotreeListerner.subscribe(x => {
+      if (!funcObj[x.locatePath]) {
+        funcObj[x.locatePath] = new Create(x.locatePath)
+      } else {
+        if (x.locatePath.search('command1') > -1) { // execute specific marco tree nodes's commands
+          funcObj[x.locatePath].execute()
+        }
+      }
+    })
+    // add functions to funcObj
+    loopAll(object.macroTree)
+    // execute specific node command's in macro commands
+    loopAll(object.macroTree)
+    /* console output:
+    * command execution from node path: macroTree/command1/node
+    * command execution from node path: macroTree/command1/children/command1.1/node
+    * command execution from node path: macroTree/command1/children/command1.2/node
+    */
+  </script>
+</body>
+
+</html>

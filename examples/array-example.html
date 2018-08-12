@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>array-example</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="proxylistener.min.js">
+  </script>
+  <script>
+    var pListener = new ProxyListener()
+    var object = {
+      array: [[0, 1, 2, 3], [3, 2, 1], [0]]
+    }
+    var arrayListener = pListener.proxyListen(object, 'array', {
+      deepListenLv: "max"
+    })
+    var arraySubscription = arrayListener.subscribe(x => {
+      console.log('location is' + ' ' + x.locatePath);
+      console.log('method is' + ' ' + x.method);
+    })
+    // change target by array method
+    object.array[0].reverse()
+    // change target by property assignment
+    object.array[3] = [1, 2, 3]
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>object-example</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="proxylistener.min.js">
+  </script>
+  <script>
+    var pListener = new ProxyListener()
+    var object = {
+      targetZero: {
+        func: function () {
+          console.log('this is targetZero');
+        },
+        array: [[0, 1, 2, 3], [3, 2, 1], [0]]
+      },
+      targetMax: {},
+      targetMultiple: {
+        targetOne: {
+          word: 'One'
+        },
+        targetTwo: {
+          word: 'Two'
+        }
+      }
+    }
+    var lvZeroListener = pListener.proxyListen(object, 'targetZero', {
+      validator: function (x) {
+        if (x.val.content) {
+          console.log('validator return false');
+          return false
+        } else {
+          console.log('validator return true');
+          return true
+        }
+      }
+    })
+    var lvMaxListener = pListener.proxyListen(object, 'targetMax', {
+      deepListenLv: "max"
+    })
+    lvZeroListener.subscribe(x => {
+      console.log('location is' + ' ' + x.locatePath)
+      console.log('method is' + ' ' + x.method);
+    })
+    lvMaxListener.subscribe(x => {
+      console.log('location is' + ' ' + x.locatePath)
+      console.log('method is' + ' ' + x.method);
+    })
+
+    var multipleListener = pListener.proxyListenGroup(object, ['targetMultiple/targetOne', 'targetMultiple/targetTwo'])
+    multipleListener.subscribeGroup(x => {
+      console.log('location is' + ' ' + x.locatePath)
+      console.log('execute the same callback function');
+    })
+    object.targetZero.func()
+    object.targetZero.array.reverse()
+    object.targetZero.nested = { content: 'nested' }
+    object.targetMax.nested = { content: 'nested' } // new property can't be added to target because validator return false
+    console.log(object.targetZero.nested);  // undefined
+    object.targetZero.nested = { word: 'nested' } // new property can be added to target because validator return true
+    object.targetMax.nested.content = 'new';  // callback function can be triggered because taget's listen level is max
+    object.targetZero.nested.word = 'new';  // callback function can't be triggered because taget's listen level is 0
+    object.targetMultiple.targetOne.word = 'new';
+    object.targetMultiple.targetTwo.word = 'new'; //execute the same callback function as targetOne
+    /* console output:
+    * this is targetZero
+    * validator return false
+    * location is targetMax/nested
+    * method is assign
+    * undefined
+    * validator return true
+    * location is targetZero/nested
+    * method is assign
+    * location is targetMax/nested/content
+    * method is assign
+    * location is targetMultiple/targetOne/word
+    * execute the same callback function
+    * location is targetMultiple/targetTwo/word
+    * execute the same callback function
+    */
+  </script>
+</body>
+
+</html>
