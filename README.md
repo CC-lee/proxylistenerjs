@@ -506,10 +506,51 @@ If you change the object, array, function type target in it's callback function 
 
 
 
-## Detect  data changes  in Vue component
+## Detect view data changes  in Vue component
 
-```
+The listener keep view data's getter/setter so that it can keep the ability to update DOM automatically.
 
+```html
+  <div id="app">
+    <div v-for="array in items">
+      <div v-for="item in array">
+        <p>{{item.num}}</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        items: [[{ num: 1.1 }, { num: 1.2 }, { num: 1.3 }],
+        [{ num: 2.1 }, { num: 2.2 }, { num: 2.3 }],
+        [{ num: 3.1 }, { num: 3.2 }, { num: 3.3 }]]
+      },
+      created() {
+        var pListener = new ProxyListener()
+        var object = {
+          target: { word: 'word' }
+        }
+        var objectListener = pListener.proxyListen(this, 'items', { deepListenLv: "max" })
+        var objectSubscription = objectListener.subscribe(function (x) {
+          if (x.locatePath) {
+            alert(`detect ${x.locatePath} change, method is ${x.method}`);
+          } else {
+            console.log(`detect target change, method is ${x.method}`);
+          }
+        })
+      },
+      mounted() {
+        this.items.reverse()
+        this.$nextTick(x => {
+          var that = this
+          setTimeout(function() {
+            that.items[0].push({ num: 1.4 }) // DOM updates asynchronously
+          }, 1000);
+        })
+      }
+    })
+  </script>
 ```
 
 
