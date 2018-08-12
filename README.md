@@ -38,14 +38,14 @@ By using [proxy-polyfill](https://github.com/GoogleChrome/proxy-polyfill), it ca
 npm install proxylistenerjs
 ```
 
-Import as ECMA2015 module
+#### Import as ECMA2015 module
 
 ```javascript
 import ProxyListener from '.proxylistenerjs/proxylistener.js' //import es2015 version
 import ProxyListener from '.proxylistenerjs/proxylistener.min.js' //import compatible version
 ```
 
-Require
+#### Require
 
 ```javascript
 var ProxyListener = require("proxylistenerjs/proxylistener.js") //require es2015 version
