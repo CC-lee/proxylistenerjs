@@ -1,4 +1,3 @@
-var ProxyPolyfill = require('proxy-polyfill/proxy.min.js')
 var NormalArrayMethod = class {
   constructor(array) {
     this.array = array
