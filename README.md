@@ -42,14 +42,16 @@ npm install proxylistenerjs
 
 ```javascript
 import ProxyListener from '.proxylistenerjs/proxylistener.js' //import es2015 version
-import ProxyListener from '.proxylistenerjs/proxylistener.min.js' //import compatible version
+import ProxyListener from '.proxylistenerjs/proxylistener.min.js' //import compatible version for browser
+import ProxyListener from '.proxylistenerjs/proxylistener.node.min.js'//import compatible version for node.js
 ```
 
 #### Require
 
 ```javascript
 var ProxyListener = require("proxylistenerjs/proxylistener.js") //require es2015 version
-var ProxyListener = require("proxylistenerjs/proxylistener.min.js") //require compatible version
+var ProxyListener = require("proxylistenerjs/proxylistener.min.js") //require compatible version for browser
+var ProxyListener = require("proxylistenerjs/proxylistener.node.min.js")//require compatible version for node.js
 ```
 
 
@@ -694,3 +696,8 @@ You can execute specific marco tree nodes's commands rather than executing all n
     */
 ```
 
+
+
+### Testing Composite pattern with proxylistener and without proxylistener 
+
+The testing files are in `__tests__` folder and the result's review is [here](http://htmlpreview.github.io/?https://github.com/CC-lee/proxylistenerjs/blob/master/test-report.html).
