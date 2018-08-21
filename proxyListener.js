@@ -518,6 +518,7 @@ function proxyListen(obj, address, funSet, propSet) {
       var isFuncListen = true
       var isFuncExePos = funcListenSet.exePos
       var isFuncIsAsync = funcListenSet.isAsync
+      var isInstanceMethod = funcListenSet.instanceMethodOn
       if (!isFuncExePos) {
         isFuncExePos = 'back'
       }
@@ -791,7 +792,7 @@ function proxyListen(obj, address, funSet, propSet) {
 
   }
 
-  var funNormalProxyApply = new ProxyListenClass.FunNormalProxy()
+  var funNormalProxyApply = new ProxyListenClass.FunNormalProxy(address)
 
   var funNormalProxy = function () {
     return Object.assign({}, {
@@ -857,7 +858,7 @@ function proxyListen(obj, address, funSet, propSet) {
 
 
 
-  var objectHandlerProxyGet = new ProxyListenClass.ObjectHandlerProxy(methCollect)
+  var objectHandlerProxyGet = new ProxyListenClass.ObjectHandlerProxy(methCollect, isInstanceMethod)
 
   var objectHandlerProxy = function () {
     return Object.assign({}, {
@@ -868,7 +869,7 @@ function proxyListen(obj, address, funSet, propSet) {
             globObj.globChange = globChange
           }
           //console.log(Object.keys(target).indexOf(key));
-          return objectHandlerProxyGet.exe(target, key, receiver, levelLimt, objectPath, objectHandlerProxy, funNormalProxy, isFuncListen)
+          return objectHandlerProxyGet.exe(target, key, receiver, levelLimt, objectPath, objectHandlerProxy, funNormalProxy, isFuncListen, isInstanceMethod)
         } else {
           return target[key]
         }
@@ -1051,4 +1052,3 @@ function proxyListenGroup(obj, addressArray, funSet, propSet) {
   }
 }
 module.exports = ProxyListener
-//module.exports = ProxyListener

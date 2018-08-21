@@ -915,12 +915,16 @@ var FuncBaseProxy = class {
 
 
 var FunNormalProxy = class {
-  constructor() {
-
+  constructor(address) {
+    this.address = address
   }
   exe(target, thisArg, argumentsList, exePos, validator, isAsync, isTrigger, defaultStr, setObs, globChange) {
-    if (!validator || validator && validator({ locatePath: target['_proxyListen']['_objPath'], thisArg: thisArg }) !== false) {
+    if (thisArg['_proxyListen'] && !target['_proxyListen']) {
+      var locatePath = thisArg['_proxyListen']['_objPath'] || this.address + '/' + target.name
+    } else {
       var locatePath = target['_proxyListen']['_objPath']
+    }
+    if (!validator || validator && validator({ locatePath: locatePath, thisArg: thisArg }) !== false) {
       if (exePos) {
         if (exePos === 'front') {
           setObs.next({ method: 'function', locatePath: locatePath, thisArg: thisArg, pos: 'front', glob: globChange, res: defaultStr })
@@ -974,13 +978,106 @@ var FunNormalProxy = class {
   }
 }
 
-
-
 var ObjectHandlerProxy = class {
-  constructor(methCollect) {
+  constructor(methCollect, isInstanceMethod) {
     this.methCollect = methCollect
+    this.isInstanceMethod = isInstanceMethod
+    if (isInstanceMethod && isInstanceMethod.include) {
+      this.includeArray = []
+      for (var i = 0; i < isInstanceMethod.include.length; i++) {
+        if (typeof isInstanceMethod.include[i] === 'string' || isInstanceMethod.include[i].class) {
+          this.includeArray.push(isInstanceMethod.include[i].class || isInstanceMethod.include[i])
+        }
+      }
+    }
+    if (isInstanceMethod && isInstanceMethod.notInclude) {
+      this.notIncludeArray = []
+      for (var i = 0; i < isInstanceMethod.notInclude.length; i++) {
+        if (typeof isInstanceMethod.notInclude[i] === 'string' || isInstanceMethod.notInclude[i].class) {
+          this.notIncludeArray.push(isInstanceMethod.notInclude[i].class || isInstanceMethod.notInclude[i])
+        }
+      }
+    }
   }
-  exe(target, key, receiver, levelLimt, objectPath, objectHandlerProxy, funNormalProxy, isFuncListen) {
+  findClassMethod(cons, name) {
+    var orginClass = Object.getPrototypeOf(cons.prototype)
+    var arrs = Object.keys(Object.getOwnPropertyDescriptors(orginClass))
+    if (arrs.indexOf(name) > -1) {
+      return true
+    } else if (Object.getPrototypeOf(orginClass.constructor).name) {
+      return this.findClassMethod(orginClass.constructor, name)
+    } else {
+      return false
+    }
+  }
+  findInstanceMethod(ins, name) {
+    var cons = Object.getPrototypeOf(ins).constructor
+    if (['Array', 'Date', 'Object', 'Map', 'Set'].indexOf(cons.name) < 0) {
+      var arrs = Object.keys(Object.getOwnPropertyDescriptors(Object.getPrototypeOf(ins)))
+      if (arrs.indexOf(name) > -1) {
+        return true
+      } else if (Object.getPrototypeOf(Object.getPrototypeOf(ins).constructor).name) {
+        return this.findClassMethod(Object.getPrototypeOf(ins).constructor, name)
+      } else {
+        return false
+      }
+    }
+  }
+  checkExist(className, method) {
+    if (this.includeArray) {
+      if (this.includeArray.indexOf(className) > -1) {
+        for (var i = 0; i < this.isInstanceMethod.include.length; i++) {
+          if (this.isInstanceMethod.include[i] === className) {
+            return true
+          } else if (this.isInstanceMethod.include[i].class && this.isInstanceMethod.include[i].class === className) {
+            var methods = this.isInstanceMethod.include[i].method
+            if (methods.indexOf(method) > -1 || methods === method) {
+              return true
+            } else {
+              return false
+            }
+          }
+        }
+      } else if (this.notIncludeArray) {
+        if (this.notIncludeArray.indexOf(className) > -1) {
+          for (var i = 0; i < this.isInstanceMethod.notInclude.length; i++) {
+            if (this.isInstanceMethod.notInclude[i] === className) {
+              return false
+            } else if (this.isInstanceMethod.notInclude[i].class && this.isInstanceMethod.notInclude[i].class === className) {
+              var methods = this.isInstanceMethod.notInclude[i].method
+              if (methods.indexOf(method) > -1 || methods === method) {
+                return false
+              } else {
+                return true
+              }
+            }
+          }
+        } else {
+          return true
+        }
+      } else {
+        return false
+      }
+    } else if (this.notIncludeArray) {
+      if (this.notIncludeArray.indexOf(className) > -1) {
+        for (var i = 0; i < this.isInstanceMethod.notInclude.length; i++) {
+          if (this.isInstanceMethod.notInclude[i] === className) {
+            return false
+          } else if (this.isInstanceMethod.notInclude[i].class && this.isInstanceMethod.notInclude[i].class === className) {
+            var methods = this.isInstanceMethod.notInclude[i].method
+            if (methods.indexOf(method) > -1 || methods === method) {
+              return false
+            } else {
+              return true
+            }
+          }
+        }
+      } else {
+        return true
+      }
+    }
+  }
+  exe(target, key, receiver, levelLimt, objectPath, objectHandlerProxy, funNormalProxy, isFuncListen, isInstanceMethod) {
     //console.log(Object.keys(target).indexOf(key));
     if (target[key] && typeof target[key] === 'object') {  //&& target[key].propertyIsEnumerable(key)
       if (levelLimt && (target['_proxyListen'] && target['_proxyListen']['_level'] < levelLimt || levelLimt === 'max')) {
@@ -1028,12 +1125,30 @@ var ObjectHandlerProxy = class {
         }
         return target[key]
       }
-      else if (typeof target[key] === 'function' && target[key]['_proxyListen']) {//&& target[key]['_proxyListen']
+      else if (typeof target[key] === 'function' && (target[key]['_proxyListen'] || Object.getPrototypeOf(target))) {//&& target[key]['_proxyListen'] //&& Object.getPrototypeOf(target)[key] === target[key]
         if (isFuncListen) {
-          return new Proxy(target[key], funNormalProxy())
-        } else {
-          return target[key]
+          if (target[key]['_proxyListen'] && target[key]['_proxyListen']['_objectPath'] === objectPath) {
+            return new Proxy(target[key], funNormalProxy())
+          }
+          else if (
+            isInstanceMethod &&
+            key !== 'constructor' &&
+            ['Array', 'Date', 'Object', 'Map', 'Set'].indexOf(Object.getPrototypeOf(target).constructor.name) < 0 &&
+            Object.getPrototypeOf(target)[key] === target[key]) {
+            if (isInstanceMethod === true) {
+              return new Proxy(target[key], funNormalProxy())
+            } else if (isInstanceMethod.include || isInstanceMethod.notInclude) {
+              var checkResult = this.checkExist(Object.getPrototypeOf(target).constructor.name, key)
+              if (checkResult === true) {
+                var findResult = this.findInstanceMethod(target, key)
+                if (findResult === true) {
+                  return new Proxy(target[key], funNormalProxy())
+                }
+              }
+            }
+          }
         }
+        return target[key]
       }
       else {
         return target[key]//.bind(target);
@@ -1052,4 +1167,4 @@ module.exports = {    //export default  //module.exports
   FunNormalProxy,
   FuncBaseProxy,
   ObjectHandlerProxy
-}
+};
