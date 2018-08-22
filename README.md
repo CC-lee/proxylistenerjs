@@ -48,6 +48,7 @@ By using [proxy-polyfill](https://github.com/GoogleChrome/proxy-polyfill), it ca
     - [Deeply Detect changes for array type target](#deeply-detect--changes-for-array-type-target)
     - [Deeply detect changes for object type target](#deeply-detect-changes-for-object-type-target)
     - [Detect view data changes in Vue component](#detect-view-data-changes--in-vue-component)
+    - [Detect instance's methods's execution](#detect-instances-methodss-execution)
     - [Application in Composite pattern](#application-in-composite-pattern)
          - [static marcoTree](#static-marcotree)
          - [dynamic marcoTree](#dynamic-marcotree)
