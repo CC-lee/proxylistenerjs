@@ -920,7 +920,7 @@ var FunNormalProxy = class {
   }
   exe(target, thisArg, argumentsList, exePos, validator, isAsync, isTrigger, defaultStr, setObs, globChange) {
     if (thisArg['_proxyListen'] && !target['_proxyListen']) {
-      var locatePath = thisArg['_proxyListen']['_objPath'] || this.address + '/' + target.name
+      var locatePath = thisArg['_proxyListen']['_objPath'] + '/' + target.name || this.address + '/' + target.name
     } else {
       var locatePath = target['_proxyListen']['_objPath']
     }
