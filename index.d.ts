@@ -1,11 +1,11 @@
 type Subscribe = {
-/**
- * 
- * 
- * @param {(passing: any) => any} callback 
- * @returns {*} 
- */
-subscribe(callback: (passing: any) => any): any;
+  /**
+   * 
+   * 
+   * @param {(passing: any) => any} callback 
+   * @returns {*} 
+   */
+  subscribe(callback: (passing: any) => any): any;
 }
 
 declare module 'proxylistenerjs' {
@@ -25,13 +25,13 @@ declare module 'proxylistenerjs' {
     /**
      * 
      * 
-     * @param {Object} object  target's parent object.
-     * @param {String} address target's location
+     * @param {Object} object 
+     * @param {String} address 
      * @param {{
      *         exePos?: String;
      *         funRepListen?: Boolean;
      *         isAsync?: Boolean;
-     *       }} [funSet] settings for function type target.
+     *       }} [funSet] 
      * @param {({
      *         thisArgs?: Object;
      *         validator?: (passing: any) => any;
@@ -48,9 +48,10 @@ declare module 'proxylistenerjs' {
      *         funcListenSet?: {
      *           listenOn: Boolean;
      *           exePos?: String;
-     *           isAsync: Boolean;
+     *           isAsync?: Boolean;
+     *           instanceMethodOn?: Boolean | { include?: Array<String | { class: String, method: String | Array<String> }>, notInclude?: Array<String | { class: String, method: String | Array<String> }> }
      *         }
-     *       })} [propSet] general listening settings.
+     *       })} [propSet] 
      * @returns {Subscribe} 
      * @memberof ProxyListener
      */
@@ -62,7 +63,7 @@ declare module 'proxylistenerjs' {
         funRepListen?: Boolean;
         isAsync?: Boolean;
       },
-       propSet?: {
+      propSet?: {
         thisArgs?: Object;
         validator?: (passing: any) => any;
         isTrigger?: Boolean;
@@ -78,7 +79,8 @@ declare module 'proxylistenerjs' {
         funcListenSet?: {
           listenOn: Boolean;
           exePos?: String;
-          isAsync: Boolean;
+          isAsync?: Boolean;
+          instanceMethodOn?: Boolean | { include?: Array<String | { class: String, method: String | Array<String> }>, notInclude?: Array<String | { class: String, method: String | Array<String> }> }
         }
       }): Subscribe;
   }

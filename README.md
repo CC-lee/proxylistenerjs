@@ -72,7 +72,7 @@ npm install proxylistenerjs
 #### Import as ECMA2015 module
 
 ```javascript
-import ProxyListener from '.proxylistenerjs/proxylistener.js' //import es2015 version
+import ProxyListener from '.proxylistenerjs' //import es2015 version
 import ProxyListener from '.proxylistenerjs/proxylistener.min.js' //import compatible version for browser
 import ProxyListener from '.proxylistenerjs/proxylistener.node.min.js'//import compatible version for node.js
 ```
@@ -311,7 +311,7 @@ You can add a Observable callback function to listener using [Rxjs](https://gith
 
 ```javascript
 import { Subject, of } from 'rxjs'
-import ProxyListener from '.proxylistenerjs/proxylistener.js'
+import ProxyListener from '.proxylistenerjs'
 import { concatMap } from 'rxjs/operators';
 // initialize with rxjs
 var pListener = new ProxyListener(Subject)
