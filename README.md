@@ -1,4 +1,4 @@
-# ProxyListener.js
+# ProxyListener.js [Download](https://raw.githubusercontent.com/CC-lee/proxylistenerjs/master/proxylistener.min.js)
 
 ## About
 
@@ -12,15 +12,52 @@ By using [proxy-polyfill](https://github.com/GoogleChrome/proxy-polyfill), it ca
 
 # Index
 
-[Installing](#installing)
+- [Installing](#installing)
+    - [HTML Script TAG](#html-script-tag)
+    - [Via NPM](#via-npm)
+    - [Import as ECMA2015 module](#import-as-ecma2015-module)
+    - [Require](#require)
 
-[Usage](#usage)
+- [Usage](#usage)
+    - [Basic](#basic)
+        - [Initialization](#initialization)
+        - [Create an object which contains listening target]( #create-an-object-which-contains-listening-target)
+        - [Create a listener](#create-a-listener)
+        - [Define callback function](#define-callback-function)
+        - [Trigger callback function](#trigger-callback-function)
+    - [Advanced](#advanced)
+        - [new ProxyListener().proxyListen(object,address,funSet,propSet).subscribe(callback(passing))](#new-proxylistenerproxylisten-object-address-funsetpropsetsubscribecallbackpassing)
+            - [proxyListen (object, address, funSet,propSet)](#proxylisten-object-address-funsetpropset)
+                - [Options]( #options)
 
-&nbsp;&nbsp;&nbsp;&nbsp;[Basic](#basic)
+        - [subscribe(callback(passing))](#subscribecallbackpassing)
+            - [Passing Object's Properties](#passing-objects-properties)
 
-&nbsp;&nbsp;&nbsp;&nbsp;[Advanced](#advanced)
+        - [Delete & Redefine callback function](#delete--redefine-callback-function)
+            - [Delete callback function](#delete-callback-function)
+            - [Redefine callback function](#redefine-callback-function)
 
- [Examples](#examples)
+        - [Create multiple listeners at once](#create-multiple-listeners-at-once)
+
+        - [new ProxyListener().proxyListenGroup(object, addressArray, funSet,propSet).subscribeGroup (callback(passing))](#new-proxylistenerproxylistengroupobject-addressarray-funsetpropsetsubscribegroup-callbackpassing)
+          - [Options](#options-1)
+          - [Delete callback function](#delete-callback-function-1)
+
+         - [Combine with Rxjs](#combine-with-rxjs)
+
+         - [Compatible with target's getter/setter](#combine-with-rxjs)
+
+- [Examples](#examples)
+    - [Using ProxyListener.js with HTML script tag](#using-proxylistenerjs-with-html-script-tag)
+    - [Avoid infinite Loop](#avoid-infinite-loop)
+    - [Detect changes or execution for asynchronous function type target](#detect--changes-or-execution-for-asynchronous-function-type-target)
+    - [Deeply Detect changes for array type target](#deeply-detect--changes-for-array-type-target)
+    - [Deeply detect changes for object type target](#deeply-detect-changes-for-object-type-target)
+    - [Detect view data changes in Vue component](#detect-view-data-changes--in-vue-component)
+    - [Application in Composite pattern](#application-in-composite-pattern)
+         - [static marcoTree](#static-marcotree)
+         - [dynamic marcoTree](#dynamic-marcotree)
+         - [Testing Composite pattern with proxylistener and without proxylistener](#testing-composite-pattern-with-proxylistener-and-without-proxylistener)
 
 
 
@@ -139,19 +176,19 @@ object.word = 'new'
 
        Listener will pass an object when validator function is excuted, the object contains:
 
-      ​	---locatePath :  the location of the target's changing property.
+       ​	---locatePath :  the location of the target's changing property.
 
-      ​	---method: the way that the target changes.
+       ​	---method: the way that the target changes.
 
-      ​	---val: the data that will be added to the target's changing property.
+       ​	---val: the data that will be added to the target's changing property.
 
-      ​	*For more detail, see the description of  `Passing Object's Properties`*
+       ​	*For more detail, see the description of  [Passing Object's Properties](#passing-objects-properties)*
 
     - isTrigger:  `boolean`  (default value: false) — whether to execute listener's callback function when validator function return false.
 
     - change: `object`—  setting for listener passing object when callback function execute.
       - sub options:
-        - isPassOldValue:  `boolean` (default value: false) —  whether to pass old value when execute callback function.    Notice: The true value setting may lower performance.
+        - isPassOldValue:  `boolean` (default value: false) —  whether to pass old value when execute callback function.    **Notice: The true value setting may lower performance.**
         - defaultValue: `string`(default value: undefined)  — custom  value for listener passing when callback function execute.
 
     - deepListenLv : `number`|`string` (default value: 0)  — the additional levels for enumerable properties listening for the target , by default, 1 level nested properties can be listened for the target.
@@ -168,7 +205,7 @@ object.word = 'new'
         - isCanCover:`boolean` (default value: true) —  whether the listener can be covered, if not,   error function will execute when the listener is being covered.
         - errFunc: `function` — a function for throwing error when `isCanCover`'s  value is false.
 
-    - funcListenSet: `object` — settings for  the listener's  reaction when
+    - funcListenSet: `object` — settings for  the listener's  reaction when function type properties execute.
 
       - sub options:
         - listenOn: `boolean` (default value: false) 
@@ -184,6 +221,22 @@ object.word = 'new'
           ​	---'both':   callback function execute before and after the target function's execution.
 
         - isAsync:`boolean`  (default value: false)  — whether to execute  callback function asynchronously after the target's asynchronous function type properties's execution.
+
+        - instanceMethodOn : `boolean`|`object` (default value: false)   — whether to execute  callback function partially or completely when the function type property is a instance's method.
+
+          ​	--values:
+
+          ​	---true: detect all the execution of instances's methods within the target.
+
+          ​	---{include: ['ClassOne', {class: 'ClassTwo', method: ['methodOne']}], notInclude:['ClassThree', {class: 'ClassFour', method: ['methodOne']}]}
+
+          ​		-- sub options:
+
+          ​		--- include: setting for specific class type instance or instance's methods can be detected after execution. For detecting all methods of  a specific class type instance, use `{include:['ClassOne']}`, for  detecting part of  methods of  a specific class type instance, use `{include:[ {class: 'ClassFour', method: ['methodOne']}]}`.
+
+          ​		--- notInclude: setting for all the execution of instances's methods can be detected except for a few specific class type instances. The way of setting is the same as the `include` property. When you set a specific class in both `include`and `notInclude `property, the specific class's setting in `notInclude `property will be invalid.
+
+          **Notice: The instanceMethodOn setting may lower performance.**
 
           
 
@@ -553,6 +606,43 @@ The listener keep view data's getter/setter so that it can keep the ability to u
       }
     })
   </script>
+```
+
+
+
+## Detect instance's methods's execution 
+
+ By customizing instance's methods's listening settings, the listener can detect instance's methods's execution partially or completely. 
+
+```javascript
+    var pListener = new ProxyListener()
+    class Origin {
+      constructor() {}
+      output() {
+        console.log('this is Class instance');
+      }
+    }
+    class Class extends Origin {
+      constructor() {
+        super()
+      }
+    }
+    var instance = new Class()
+    var object = {
+      instance: instance
+    }
+    pListener.proxyListen(object, 'instance', { deepListenLv: 'max', funcListenSet: { listenOn: true, instanceMethodOn: { include: ['Class'] } } })
+      .subscribe(function (x) {
+        console.log('location is' + ' ' + x.locatePath);
+        console.log('method is' + ' ' + x.method);
+      })
+	// listener can detect instance's methods's execution through prototype chain
+    object.instance.output()
+    /* console output:
+    * this is Class instance
+    * location is instance/output
+    * method is function
+    */
 ```
 
 

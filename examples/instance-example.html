@@ -11,12 +11,15 @@
   <script type="text/javascript" src="proxylistener.min.js"></script>
   <script>
     var pListener = new ProxyListener()
-    class Class {
-      constructor() {
-
-      }
+    class Origin {
+      constructor() { }
       output() {
         console.log('this is Class instance');
+      }
+    }
+    class Class extends Origin {
+      constructor() {
+        super()
       }
     }
     var instance = new Class()
@@ -28,7 +31,13 @@
         console.log('location is' + ' ' + x.locatePath);
         console.log('method is' + ' ' + x.method);
       })
+    // listener can detect instance's methods's execution through prototype chain
     object.instance.output()
+    /* console output:
+    * this is Class instance
+    * location is instance/output
+    * method is function
+    */
   </script>
 </body>
 
