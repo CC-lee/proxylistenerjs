@@ -1,6 +1,6 @@
 {
   "name": "proxylistenerjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A library for observing changes for newly added or existing, any data types of custom levels of javascript object properties.",
   "main": "proxylistener.js",
   "scripts": {
