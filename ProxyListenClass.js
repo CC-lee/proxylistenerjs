@@ -684,39 +684,39 @@ var SetProcess = class {
               if (!value || typeof value === 'object' ||
                 typeof value === 'function'
               ) {
-                if ((typeof value === 'object' || typeof value === 'function') && value['_proxyListen'] && value['_proxyListen']['_objectPath'] === this.objectPath) {
-                  value = Object.create(Object.getPrototypeOf(value), Object.getOwnPropertyDescriptors(value));
-                }
-                if (levelLimt && target['_proxyListen']['_level'] < levelLimt || levelLimt === 'max') {
-                  if (value && (typeof value === 'object' || typeof value === 'function') && value !== null) {
-                    if (!value['_proxyListen']) {
-                      Object.defineProperty(value, "_proxyListen", {
-                        value: {},
+                if ((typeof value === 'object' || typeof value === 'function') && value['_proxyListen']) {
+                } else {
+                  if (levelLimt && target['_proxyListen']['_level'] < levelLimt || levelLimt === 'max') {
+                    if (value && (typeof value === 'object' || typeof value === 'function') && value !== null) {
+                      if (!value['_proxyListen']) {
+                        Object.defineProperty(value, "_proxyListen", {
+                          value: {},
+                          writable: true,
+                          enumerable: false,
+                          configurable: true
+                        });
+                      }
+                      Object.defineProperty(value['_proxyListen'], "_objectPath", {
+                        value: this.objectPath,
                         writable: true,
                         enumerable: false,
                         configurable: true
                       });
-                    }
-                    Object.defineProperty(value['_proxyListen'], "_objectPath", {
-                      value: this.objectPath,
-                      writable: true,
-                      enumerable: false,
-                      configurable: true
-                    });
-                    if (value && !Array.isArray(value)) {
-                      if (target['_proxyListen']['_isProxy']) {
-                        this.objectPathAssign(value, this.objectPath, this.address + '/' + key, true, target['_proxyListen']['_level'] + 1)  //realTimePath + '/' + key
-                      } else {
-                        this.objectPathAssign(value, this.objectPath, target['_proxyListen']['_objPath'] + '/' + key, true, target['_proxyListen']['_level'] + 1)  //realTimePath + '/' + key
+                      if (value && !Array.isArray(value)) {
+                        if (target['_proxyListen']['_isProxy']) {
+                          this.objectPathAssign(value, this.objectPath, this.address + '/' + key, true, target['_proxyListen']['_level'] + 1)  //realTimePath + '/' + key
+                        } else {
+                          this.objectPathAssign(value, this.objectPath, target['_proxyListen']['_objPath'] + '/' + key, true, target['_proxyListen']['_level'] + 1)  //realTimePath + '/' + key
+                        }
                       }
-                    }
-                    else if (value && Array.isArray(value)) {
-                      if (target['_proxyListen']['_isProxy']) {
-                        this.normalArrayAssign(value, setObs, 'single', this.address + '/' + key, target['_proxyListen']['_level'] + 1) //null //realTimePath + '/' + key
-                        this.objectPathAssign(value, this.objectPath, this.address + '/' + key, null, target['_proxyListen']['_level'] + 1)
-                      } else {
-                        this.normalArrayAssign(value, setObs, 'single', target['_proxyListen']['_objPath'] + '/' + key, target['_proxyListen']['_level'] + 1) //null //realTimePath + '/' + key
-                        this.objectPathAssign(value, this.objectPath, target['_proxyListen']['_objPath'] + '/' + key, null, target['_proxyListen']['_level'] + 1)
+                      else if (value && Array.isArray(value)) {
+                        if (target['_proxyListen']['_isProxy']) {
+                          this.normalArrayAssign(value, setObs, 'single', this.address + '/' + key, target['_proxyListen']['_level'] + 1) //null //realTimePath + '/' + key
+                          this.objectPathAssign(value, this.objectPath, this.address + '/' + key, null, target['_proxyListen']['_level'] + 1)
+                        } else {
+                          this.normalArrayAssign(value, setObs, 'single', target['_proxyListen']['_objPath'] + '/' + key, target['_proxyListen']['_level'] + 1) //null //realTimePath + '/' + key
+                          this.objectPathAssign(value, this.objectPath, target['_proxyListen']['_objPath'] + '/' + key, null, target['_proxyListen']['_level'] + 1)
+                        }
                       }
                     }
                   }
